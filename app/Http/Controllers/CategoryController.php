@@ -2,35 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = DB::table('categories')->get();
+        $categories = Category::getAllCategories();
 
         return response()->json($categories, 200);
     }
 
+
     public function store(Request $request)
     {
 
-        $id = DB::table('categories')->insertGetId([
-            'name' => $request->name,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        $category = DB::table('categories')->where('id', $id)->first();
+        $category = Category::createCategory($request->all());
 
         return response()->json($category, 201);
     }
 
+
     public function show(string $id)
     {
-        $category = DB::table('categories')->where('id', $id)->first();
+        $category = Category::findCategoryById($id);
 
         if (!$category) {
             return response()->json(['message' => 'Kategória neexistuje'], 404);
@@ -39,36 +35,30 @@ class CategoryController extends Controller
         return response()->json($category, 200);
     }
 
+
     public function update(Request $request, string $id)
     {
-        $category = DB::table('categories')->where('id', $id)->first();
+        $category = Category::findCategoryById($id);
 
         if (!$category) {
             return response()->json(['message' => 'Kategória neexistuje'], 404);
         }
 
-        DB::table('categories')
-            ->where('id', $id)
-            ->update([
-                'name' => $request->name,
-                'updated_at' => now(),
-            ]);
+        $category->updateCategoryData($request->all());
 
-        $updatedCategory = DB::table('categories')->where('id', $id)->first();
-
-        return response()->json($updatedCategory, 200);
+        return response()->json($category->fresh(), 200);
     }
+
 
     public function destroy(string $id)
     {
-        $category = DB::table('categories')->where('id', $id)->first();
+        $category = Category::findCategoryById($id);
 
         if (!$category) {
             return response()->json(['message' => 'Kategória neexistuje'], 404);
         }
 
-        DB::table('note_category')->where('category_id', $id)->delete();
-        DB::table('categories')->where('id', $id)->delete();
+        $category->deleteCategory();
 
         return response()->json(['message' => 'Kategória bola vymazaná'], 200);
     }

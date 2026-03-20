@@ -143,17 +143,32 @@ class NoteController extends Controller
 
 
 
-    public function publish(String $id){
+    public function publish(string $id)
+    {
         $note = Note::find($id);
 
-        if(!$note){
-            return response()->json(['message' => 'Poznámka nenájdená.'], Response::HTTP_NOT_FOUND);
+        if (!$note) {
+            return response()->json(['message' => 'Poznámka neexistuje'], 404);
         }
 
         $note->publish();
 
-        return response()->json(['note' => $note], Response::HTTP_OK);
+        return response()->json($note->fresh(), 200);
     }
+
+    public function archive(string $id)
+    {
+        $note = Note::find($id);
+
+        if (!$note) {
+            return response()->json(['message' => 'Poznámka neexistuje'], 404);
+        }
+
+        $note->archive();
+
+        return response()->json($note->fresh(), 200);
+    }
+
     public function search(Request $request)
     {
         $q = trim((string) $request->query('q', ''));
@@ -162,5 +177,31 @@ class NoteController extends Controller
 
         return response()->json(['query' => $q, 'notes' => $notes], Response::HTTP_OK);
     }
+    
+    public function pin(string $id)
+    {
+        $note = Note::find($id);
+
+        if (!$note) {
+            return response()->json(['message' => 'Poznámka neexistuje'], 404);
+        }
+
+        $note->pin();
+
+        return response()->json($note->fresh(), 200);
+    }
+    public function unpin(string $id)
+    {
+        $note = Note::find($id);
+
+        if (!$note) {
+            return response()->json(['message' => 'Poznámka neexistuje'], 404);
+        }
+
+        $note->unpin();
+
+        return response()->json($note->fresh(), 200);
+    }
+
 
 }
