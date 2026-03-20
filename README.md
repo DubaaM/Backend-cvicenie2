@@ -1,5 +1,4 @@
-![notes](screenshots/Screenshot1.png)
-![notes](screenshots/Screenshot2.png)
-![notes](screenshots/Screenshot3.png)
-![notes](screenshots/Screenshot4.png)
-![notes](screenshots/Screenshot5.png)
+![notes](screenshots/Screenshot6.png)
+![notes](screenshots/Screenshot7.png)
+![notes](screenshots/Screenshot8.png)
+
