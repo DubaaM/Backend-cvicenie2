@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -47,6 +47,22 @@ class User extends Authenticatable
             'premium_until' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function tasks(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Task::class,
+            Note::class,
+            'user_id', // Foreign key on the users table...
+            'note_id', // Foreign key on the tasks table...
+            'id', // Local key on the users table...
+            'id' // Local key on the notes table...
+        );
+    }
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'user_id', 'id');
     }
 
 }
