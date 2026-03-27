@@ -30,7 +30,7 @@ class Note extends Model
         'is_pinned' => 'boolean',
     ];
 
-    public function categories(): BelongsToMany
+    public function categories()
     {
         return $this->belongsToMany(Category::class, 'note_category')->withTimestamps();
     }
@@ -40,13 +40,13 @@ class Note extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
     // jedna poznámka má viac úloh
-    public function tasks(): HasMany
+    public function tasks()
     {
         return $this->hasMany(Task::class, 'note_id', 'id');
     }

@@ -24,7 +24,7 @@ class Task extends Model
     ];
 
     // úloha patrí jednej poznámke
-    public function note(): BelongsTo
+    public function note()
     {
         return $this->belongsTo(Note::class, 'note_id', 'id');
     }
