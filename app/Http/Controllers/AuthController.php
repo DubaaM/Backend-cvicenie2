@@ -23,7 +23,7 @@ class AuthController extends Controller
             'first_name' => $validated['first_name'],
             'last_name'  => $validated['last_name'],
             'email'      => $validated['email'],
-            'password'   => $validated['password'], // cast zahashuje heslo
+            'password'   => $validated['password'],
             'role'       => 'user',
         ]);
 
@@ -60,12 +60,72 @@ class AuthController extends Controller
         ], Response::HTTP_OK);
     }
 
+    public function me(Request $request)
+    {
+        return response()->json($request->user(), Response::HTTP_OK);
+    }
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             'message' => 'Používateľ bol odhlásený z aktuálneho zariadenia.',
+        ], Response::HTTP_OK);
+    }
+
+    public function logoutAll(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return response()->json([
+            'message' => 'Používateľ bol odhlásený zo všetkých zariadení.',
+        ], Response::HTTP_OK);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(12)->letters()->mixedCase()->numbers()->symbols(),
+            ],
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            return response()->json([
+                'message' => 'Aktuálne heslo nie je správne.',
+                'errors' => [
+                    'current_password' => ['Aktuálne heslo nie je správne.'],
+                ],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $user->password = $validated['password'];
+        $user->save();
+
+        return response()->json([
+            'message' => 'Heslo bolo úspešne zmenené.',
+        ], Response::HTTP_OK);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $validated = $request->validate([
+            'first_name' => ['sometimes', 'required', 'string', 'min:2', 'max:128'],
+            'last_name'  => ['sometimes', 'required', 'string', 'min:2', 'max:128'],
+        ]);
+
+        $user = $request->user();
+        $user->update($validated);
+
+        return response()->json([
+            'message' => 'Profil bol úspešne upravený.',
+            'user' => $user->fresh(),
         ], Response::HTTP_OK);
     }
 }
