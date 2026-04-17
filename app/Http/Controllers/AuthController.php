@@ -184,6 +184,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Profilovú fotku sa nepodarilo uložiť.',
+                'error' => $e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -192,5 +193,25 @@ class AuthController extends Controller
             'profile_photo' => $newPhoto,
             'profile_photo_url' => $newPhoto->publicUrl(),
         ], Response::HTTP_CREATED);
+    }
+
+    public function destroyProfilePhoto(Request $request)
+    {
+        $attachment = $request->user()->profilePhoto;
+
+        if (!$attachment) {
+            return response()->json([
+                'message' => 'Profilová fotka neexistuje.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        DB::transaction(function () use ($attachment) {
+            Storage::disk($attachment->disk)->delete($attachment->path);
+            $attachment->delete();
+        });
+
+        return response()->json([
+            'message' => 'Profilová fotka bola odstránená.',
+        ], Response::HTTP_OK);
     }
 }

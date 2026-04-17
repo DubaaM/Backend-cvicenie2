@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function ($middleware) {
         $middleware->alias([
             'admin' => AdminOnly::class,
+            'premium' => \App\Http\Middleware\PremiumOnly::class,
         ]);
     })
     ->withMiddleware(function (Middleware $middleware): void {

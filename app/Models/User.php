@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -76,9 +77,9 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
-    public function hasActivePremium(): bool
+    public function isPremium(): bool
     {
-        return $this->premium_until !== null && $this->premium_until->isFuture();
+        return $this->premium_until && $this->premium_until->isFuture();
     }
     public function profilePhoto(): MorphOne
     {

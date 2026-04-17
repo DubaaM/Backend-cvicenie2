@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\AttachmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -46,6 +47,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::patch('/comments/{comment}', [CommentController::class, 'update']);
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+
+    Route::post('/auth/me/profile-photo', [AuthController::class, 'storeProfilePhoto']);
+    Route::delete('/auth/me/profile-photo', [AuthController::class, 'destroyProfilePhoto']);
+
+    Route::get('/notes/{note}/attachments', [AttachmentController::class, 'index']);
+    Route::post('/notes/{note}/attachments', [AttachmentController::class, 'store'])->middleware('premium');
+
+    Route::get('/attachments/{attachment:public_id}/link', [AttachmentController::class, 'link']);
+    Route::delete('/attachments/{attachment:public_id}', [AttachmentController::class, 'destroy']);
 
     Route::apiResource('notes.tasks', TaskController::class)->scoped();
 });

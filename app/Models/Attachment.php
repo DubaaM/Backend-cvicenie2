@@ -14,10 +14,12 @@ class Attachment extends Model
         'visibility',
         'disk',
         'path',
-        'original_name',
         'stored_name',
+        'original_name',
         'mime_type',
         'size',
+        'attachable_id',
+        'attachable_type',
     ];
 
     public function attachable(): MorphTo
