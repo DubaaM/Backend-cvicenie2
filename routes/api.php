@@ -1,11 +1,10 @@
 <?php
-
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
-
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -14,45 +13,49 @@ Route::prefix('auth')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
         Route::post('/logout', [AuthController::class, 'logout']);
-
         Route::post('/logout-all', [AuthController::class, 'logoutAll']);
         Route::put('/change-password', [AuthController::class, 'changePassword']);
         Route::put('/profile', [AuthController::class, 'updateProfile']);
     });
 });
+
 Route::middleware('auth:sanctum')->group(function () {
-    // všetci prihlásení môžu čítať kategórie
+
+    Route::get('/notes/search', [NoteController::class, 'search']);
+    Route::get('/notes-stats', [NoteController::class, 'statsByStatus']);
+    Route::post('/notes/archive-old-drafts', [NoteController::class, 'archiveOldDrafts']);
+    Route::get('/users/{userId}/notes-categories', [NoteController::class, 'userNotesWithCategories']);
+
+    Route::get('/notes', [NoteController::class, 'index']);
+    Route::get('/my-notes', [NoteController::class, 'myNotes']);
+    Route::post('/notes', [NoteController::class, 'store']);
+    Route::get('/notes/{note}', [NoteController::class, 'show']);
+    Route::patch('/notes/{note}', [NoteController::class, 'update']);
+    Route::delete('/notes/{note}', [NoteController::class, 'destroy']);
+
+    Route::patch('/notes/{note}/publish', [NoteController::class, 'publish']);
+    Route::patch('/notes/{note}/archive', [NoteController::class, 'archive']);
+    Route::patch('/notes/{note}/pin', [NoteController::class, 'pin']);
+    Route::patch('/notes/{note}/unpin', [NoteController::class, 'unpin']);
+
+    Route::get('/notes/{note}/comments', [CommentController::class, 'noteComments']);
+    Route::post('/notes/{note}/comments', [CommentController::class, 'storeNoteComment']);
+
+    Route::get('/tasks/{task}/comments', [CommentController::class, 'taskComments']);
+    Route::post('/tasks/{task}/comments', [CommentController::class, 'storeTaskComment']);
+
+    Route::patch('/comments/{comment}', [CommentController::class, 'update']);
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+
+    Route::apiResource('notes.tasks', TaskController::class)->scoped();
+});
+
+
+
+Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
 
-    // iba admin môže vytvárať, upravovať, mazať kategórie
     Route::middleware('admin')->group(function () {
         Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
     });
 });
-
-Route::get('/notes/search', [NoteController::class, 'search']);
-Route::get('/notes', [NoteController::class, 'index']);
-Route::post('/notes', [NoteController::class, 'store']);
-Route::get('/notes/{id}', [NoteController::class, 'show']);
-Route::put('/notes/{id}', [NoteController::class, 'update']);
-Route::delete('/notes/{id}', [NoteController::class, 'destroy']);
-
-Route::get('/notes-stats', [NoteController::class, 'statsByStatus']);
-Route::post('/notes/archive-old-drafts', [NoteController::class, 'archiveOldDrafts']);
-Route::get('/users/{userId}/notes-categories', [NoteController::class, 'userNotesWithCategories']);
-Route::post('/notes/{id}/publish', [NoteController::class, 'publish']);
-
-Route::patch('/notes/{id}/pin', [NoteController::class, 'pin']);
-Route::patch('/notes/{id}/unpin', [NoteController::class, 'unpin']);
-Route::patch('/notes/{id}/publish', [NoteController::class, 'publish']);
-Route::patch('/notes/{id}/archive', [NoteController::class, 'archive']);
-
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::post('/categories', [CategoryController::class, 'store']);
-Route::get('/categories/{id}', [CategoryController::class, 'show']);
-Route::put('/categories/{id}', [CategoryController::class, 'update']);
-Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
-Route::apiResource('notes.tasks', TaskController::class)->scoped();
-
-
-

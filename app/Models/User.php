@@ -66,6 +66,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class, 'user_id', 'id');
     }
+    public function notes(): HasMany
+    {
+        return $this->hasMany(Note::class);
+    }
 
     public function isAdmin(): bool
     {
@@ -75,6 +79,11 @@ class User extends Authenticatable
     public function hasActivePremium(): bool
     {
         return $this->premium_until !== null && $this->premium_until->isFuture();
+    }
+    public function profilePhoto(): MorphOne
+    {
+        return $this->morphOne(Attachment::class, 'attachable')
+            ->where('collection', 'profile_photo');
     }
 
 }
